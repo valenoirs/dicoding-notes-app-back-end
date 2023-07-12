@@ -30,7 +30,7 @@ class NotesService {
     return id
   }
 
-  getNote() {
+  getNotes() {
     return this._notes
   }
 
