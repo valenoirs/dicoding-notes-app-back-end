@@ -44,7 +44,7 @@ class NotesService {
     return note
   }
 
-  editNote(id, { title, body, tags }) {
+  editNoteById(id, { title, body, tags }) {
     const index = this._notes.findIndex((note) => note.id === id)
 
     if (index === -1) {
@@ -63,10 +63,10 @@ class NotesService {
   }
 
   deteleNoteById(id) {
-    const index = this._notes.filter((note) => note.id === id)
+    const index = this._notes.findIndex((note) => note.id === id)
 
     if (index === -1) {
-      throw new Error('Catatan gagal dihapus. id tidak ditemukan')
+      throw new Error('Catatan gagal dihapus. Id tidak ditemukan')
     }
 
     this._notes.splice(index, 1)
