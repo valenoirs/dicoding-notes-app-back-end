@@ -1,3 +1,5 @@
+const ClientError = require('../../exceptions/ClientError')
+
 class NotesHandler {
   constructor(service, validator) {
     this._service = service
@@ -26,12 +28,23 @@ class NotesHandler {
         })
         .code(201)
     } catch (error) {
+      if (error instanceof ClientError) {
+        return h
+          .response({
+            status: 'fail',
+            message: error.message,
+          })
+          .code(error.statusCode)
+      }
+
+      // Server Error
+      console.error(error)
       return h
         .response({
-          status: 'fail',
-          message: error.message,
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
         })
-        .code(400)
+        .code(500)
     }
   }
 
@@ -52,12 +65,23 @@ class NotesHandler {
         data: { note },
       }
     } catch (error) {
+      if (error instanceof ClientError) {
+        return h
+          .response({
+            status: 'fail',
+            message: error.message,
+          })
+          .code(error.statusCode)
+      }
+
+      // Server Error
+      console.error(error)
       return h
         .response({
-          status: 'fail',
-          message: error.message,
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
         })
-        .code(404)
+        .code(500)
     }
   }
 
@@ -71,12 +95,23 @@ class NotesHandler {
         message: 'Catatan berhasil diperbarui',
       }
     } catch (error) {
+      if (error instanceof ClientError) {
+        return h
+          .response({
+            status: 'fail',
+            message: error.message,
+          })
+          .code(error.statusCode)
+      }
+
+      // Server Error
+      console.error(error)
       return h
         .response({
-          status: 'fail',
-          message: error.message,
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
         })
-        .code(404)
+        .code(500)
     }
   }
 
@@ -89,12 +124,23 @@ class NotesHandler {
         message: 'Catatan berhasil dihapus',
       }
     } catch (error) {
+      if (error instanceof ClientError) {
+        return h
+          .response({
+            status: 'fail',
+            message: error.message,
+          })
+          .code(error.statusCode)
+      }
+
+      // Server Error
+      console.error(error)
       return h
         .response({
-          status: 'fail',
-          message: error.message,
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
         })
-        .code(404)
+        .code(500)
     }
   }
 }
