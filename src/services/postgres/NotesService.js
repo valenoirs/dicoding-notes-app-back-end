@@ -6,7 +6,13 @@ const { mapDBToModel } = require('../../utils')
 
 class NotesService {
   constructor() {
-    this._pool = new Pool()
+    this._pool = new Pool({
+      user: process.env.PGUSER,
+      host: process.env.PGHOST,
+      database: process.env.PGDATABASE,
+      password: process.env.PGPASSWORD,
+      port: process.env.PGPORT,
+    })
   }
 
   async addNote({ title, body, tags }) {
@@ -15,7 +21,7 @@ class NotesService {
     const updatedAt = createdAt
 
     const query = {
-      text: 'INSERT INTO notes VALUES($1, $2, $3, $4, $5, $5) RETURNING id',
+      text: 'INSERT INTO notes VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
       values: [id, title, body, tags, createdAt, updatedAt],
     }
 
@@ -70,7 +76,7 @@ class NotesService {
       values: [id],
     }
 
-    const result = this._pool.query(query)
+    const result = await this._pool.query(query)
 
     if (!result.rows.length) {
       throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan')
