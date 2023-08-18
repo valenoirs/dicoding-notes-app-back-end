@@ -845,21 +845,21 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:5000/users/{{currentUserId}}}",
+					"raw": "localhost:5000/users/{{currentUserId}}",
 					"host": [
 						"localhost"
 					],
 					"port": "5000",
 					"path": [
 						"users",
-						"{{currentUserId}}}"
+						"{{currentUserId}}"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Getting User By Correct Id Copy",
+			"name": "Getting User By Incorrect Id",
 			"event": [
 				{
 					"listen": "test",

@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
-const { bcrypt } = require('bcrypt')
+const bcrypt = require('bcrypt')
 
 const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
@@ -13,7 +13,7 @@ class UsersService {
   async addUser({ username, password, fullname }) {
     await this.verifyNewUsername(username)
 
-    const id = `user-${nanoid}`
+    const id = `user-${nanoid(16)}`
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -27,6 +27,8 @@ class UsersService {
     if (!result.rows.length) {
       throw new InvariantError('User gagal ditambahkan')
     }
+
+    return result.rows[0].id
   }
 
   async verifyNewUsername(username) {
@@ -42,13 +44,11 @@ class UsersService {
         'Gagal menambahkan user. Username sudah digunakan.'
       )
     }
-
-    return result.rows[0].id
   }
 
   async getUserById(userId) {
     const query = {
-      text: 'SELECT id, username, fullname FROM users WHERE userId = $1',
+      text: 'SELECT id, username, fullname FROM users WHERE id = $1',
       values: [userId],
     }
 
