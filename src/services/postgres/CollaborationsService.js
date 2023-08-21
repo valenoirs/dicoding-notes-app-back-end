@@ -16,7 +16,7 @@ class CollaborationsService {
       values: [id, noteId, userId],
     }
 
-    const result = this._pool.query(query)
+    const result = await this._pool.query(query)
 
     if (!result.rows.length) {
       throw new InvariantError('Kolaborasi gagal ditambahkan')
@@ -41,7 +41,7 @@ class CollaborationsService {
   async verifyCollaborator(noteId, userId) {
     const query = {
       text: 'SELECT * FROM collaborations WHERE note_id = $1 AND user_id = $2',
-      valuse: [noteId, userId],
+      values: [noteId, userId],
     }
 
     const result = await this._pool.query(query)
