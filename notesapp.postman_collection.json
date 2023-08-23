@@ -392,6 +392,132 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Search User by Username",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Menambahkan user dengan username dicoding\r",
+									"const addDicodingUserRequest = {\r",
+									"    method: 'POST',\r",
+									"    url: 'http://localhost:5000/users',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json',\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: 'dicoding',\r",
+									"            password: pm.environment.get('newPassword'),\r",
+									"            fullname: 'Dicoding',\r",
+									"        }),\r",
+									"    },\r",
+									"};\r",
+									" \r",
+									"pm.sendRequest(addDicodingUserRequest, (error, response) => {\r",
+									"    console.log(error ? error : response);\r",
+									"});\r",
+									" \r",
+									"// menambahkan user dengan username \"dicoding_indonesia\"\r",
+									"const addDicodingIndonesiaUserRequest = {\r",
+									"    method: 'POST',\r",
+									"    url: 'http://localhost:5000/users',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json',\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: 'dicoding_indonesia',\r",
+									"            password: pm.environment.get('newPassword'),\r",
+									"            fullname: 'Dicoding Indonesia',\r",
+									"        }),\r",
+									"    },\r",
+									"};\r",
+									" \r",
+									"pm.sendRequest(addDicodingIndonesiaUserRequest, (error, response) => {\r",
+									"    console.log(error ? error : response);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('response status should be 200', () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									" \r",
+									"pm.test('response Content-Type header should have application/json value', () => {\r",
+									"  pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should an object', () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson).to.be.an('object');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should have correct property and value', () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									" \r",
+									"    pm.expect(responseJson).to.have.ownProperty('status');\r",
+									"    pm.expect(responseJson.status).to.equals('success');\r",
+									"    pm.expect(responseJson).to.have.ownProperty('data');\r",
+									"    pm.expect(responseJson.data).to.be.an('object');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body data should contain users array', () => {\r",
+									"    const { data } = pm.response.json();\r",
+									" \r",
+									"    pm.expect(data).to.have.ownProperty('users');\r",
+									"    pm.expect(data.users).to.be.an('array');\r",
+									"});\r",
+									" \r",
+									"pm.test('the array users should have contain 2 user object related to dicoding username', () => {\r",
+									"    const { data: { users } } = pm.response.json();\r",
+									" \r",
+									"    pm.expect(users).to.have.lengthOf(2);\r",
+									" \r",
+									"    users.forEach((user) => {\r",
+									"        pm.expect(user).to.be.an('object');\r",
+									"        pm.expect(user).to.have.ownProperty('id');\r",
+									"        pm.expect(user).to.have.ownProperty('username');\r",
+									"        pm.expect(user).to.have.ownProperty('fullname');\r",
+									"        pm.expect(user.username).to.include('dicoding');\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/users?username=dicoding",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "dicoding"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1100,15 +1226,15 @@
 									"   pm.expect(data.note).to.be.an('object');\r",
 									"}); \r",
 									"\r",
-									"pm.test('note object should contain correct value for id, title, body, and tags property', () => {\r",
+									"pm.test('note object should contain correct value for id, title, body, tags, and username property', () => {\r",
 									"   const responseJson = pm.response.json();\r",
 									"   const { data: { note } } = responseJson;\r",
-									"\r",
+									" \r",
 									"   const expectedId = pm.environment.get('noteId');\r",
 									"   const expectedTitle = 'Catatan A';\r",
 									"   const expectedTags = ['Android', 'Web'];\r",
 									"   const expectedBody = 'Isi dari catatan A';\r",
-									"\r",
+									" \r",
 									"   pm.expect(note).to.have.ownProperty('id');\r",
 									"   pm.expect(note.id).to.equals(expectedId);\r",
 									"   pm.expect(note).to.have.ownProperty('title');\r",
@@ -1117,6 +1243,8 @@
 									"   pm.expect(note.tags).to.eql(expectedTags);\r",
 									"   pm.expect(note).to.have.ownProperty('body');\r",
 									"   pm.expect(note.body).to.equals(expectedBody);\r",
+									"   pm.expect(note).to.have.ownProperty('username');\r",
+									"   pm.expect(note.username).to.be.a('string');\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2939,7 +3067,7 @@
 					"response": []
 				},
 				{
-					"name": "Adding Collaborator User as Collaborator to Added Note using Collaborator User Copy",
+					"name": "Getting All Notes using Collaborator User",
 					"event": [
 						{
 							"listen": "test",
@@ -3143,7 +3271,7 @@
 					"response": []
 				},
 				{
-					"name": "Editing Added Note using Collaborator User Copy",
+					"name": "Deleting Added Note using Owner User",
 					"event": [
 						{
 							"listen": "test",
@@ -3302,6 +3430,246 @@
 							"            // memasukkan access token Owner User ke environment variabel",
 							"            const { data: { accessToken } } = response.json();",
 							"            pm.environment.set('collaboratorAccessToken', accessToken);",
+							"        }",
+							"    });",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Exports",
+			"item": [
+				{
+					"name": "Exports Notes with Valid Payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('response code should have 201 value', () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									" \r",
+									"pm.test('response Content-Type header should have application/json value', () => {\r",
+									"  pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should be an object', () => {\r",
+									"   const responseJson = pm.response.json();\r",
+									"   pm.expect(responseJson).to.be.an('object');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should have the correct property and value', () => {\r",
+									"   const responseJson = pm.response.json();\r",
+									" \r",
+									"   pm.expect(responseJson).to.have.ownProperty('status');\r",
+									"   pm.expect(responseJson.status).to.equals('success');\r",
+									"   pm.expect(responseJson).to.have.ownProperty('message');\r",
+									"   pm.expect(responseJson.message).to.equals('Permintaan Anda dalam antrean');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessTokenUserA}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetEmail\": \"vfip.contact@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/export/notes",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"export",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Exports Notes with Bad Payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('response code should have 400 value', () => {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									" \r",
+									"pm.test('response Content-Type header should have application/json value', () => {\r",
+									"  pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should be an object', () => {\r",
+									"   const responseJson = pm.response.json();\r",
+									"   pm.expect(responseJson).to.be.an('object');\r",
+									"});\r",
+									" \r",
+									"pm.test('response body should have the correct property and value', () => {\r",
+									"   const responseJson = pm.response.json();\r",
+									" \r",
+									"   pm.expect(responseJson).to.have.ownProperty('status');\r",
+									"   pm.expect(responseJson.status).to.equals('fail');\r",
+									"   pm.expect(responseJson).to.have.ownProperty('message');\r",
+									"   pm.expect(responseJson.message).to.be.a('string');\r",
+									"});\r",
+									" \r",
+									"const repeatRequestUntilDatasetEmpty = () => {\r",
+									"    const badExportPayloads = pm.environment.get('badExportPayloads');\r",
+									" \r",
+									"    if(badExportPayloads && badExportPayloads.length > 0) {\r",
+									"        postman.setNextRequest('Exports Notes with Bad Payload');\r",
+									"    }\r",
+									"}\r",
+									" \r",
+									"repeatRequestUntilDatasetEmpty();"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let badExportPayloads = pm.environment.get('badExportPayloads');\r",
+									" \r",
+									"if (!badExportPayloads || badExportPayloads.length === 0) {\r",
+									"    badExportPayloads = [\r",
+									"       {},\r",
+									"       { targetEmail: true },\r",
+									"       { targetEmail: 0 },\r",
+									"       { targetEmail: '' },\r",
+									"       { targetEmail: 'John' },\r",
+									"       { targetEmail: 'qwert123' },\r",
+									"    ];\r",
+									"}\r",
+									" \r",
+									"const currentBadExportPayload = badExportPayloads.shift();\r",
+									"pm.environment.set('currentBadExportPayload', JSON.stringify(currentBadExportPayload));\r",
+									"pm.environment.set('badExportPayloads', badExportPayloads);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessTokenUserA}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{currentBadExportPayload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/export/notes",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"export",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// membuat User A ",
+							"const createUserARequest = {",
+							"    url: 'http://localhost:5000/users',",
+							"    method: 'POST',",
+							"    header: {",
+							"        'Content-Type': 'application/json',",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({",
+							"            username: 'user_a',",
+							"            password: 'secret',",
+							"            fullname: 'User A',",
+							"        }),",
+							"    },",
+							"};",
+							" ",
+							"pm.sendRequest(createUserARequest, (error, response) => {",
+							"    console.log(error ? error : response);",
+							" ",
+							"    // Setelah terdaftar, login dengan User A",
+							"    const loginUserRequest = {",
+							"        url: 'http://localhost:5000/authentications',",
+							"        method: 'POST',",
+							"        header: {",
+							"            'Content-Type': 'application/json',",
+							"        },",
+							"        body: {",
+							"            mode: 'raw',",
+							"            raw: JSON.stringify({",
+							"                username: 'user_a',",
+							"                password: 'secret',",
+							"            }),",
+							"        },",
+							"    };",
+							" ",
+							"    pm.sendRequest(loginUserRequest, (error, response) => {",
+							"        if (!error) {",
+							"            // memasukkan access token User A ke environment variabel",
+							"            const { data: { accessToken } } = response.json();",
+							"            pm.environment.set('accessTokenUserA', accessToken);",
 							"        }",
 							"    });",
 							"});"
